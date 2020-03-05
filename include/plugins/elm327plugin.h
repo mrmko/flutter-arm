@@ -125,12 +125,12 @@ struct pidqq_element {
 };
 
 
-#define ELM327PLUGIN_CHANNEL "plugins.flutter-pi.io/elm327"
-#define ELM327PLUGIN_RPM_CHANNEL "plugins.flutter-pi.io/elm327/rpm"
-#define ELM327PLUGIN_ENGINELOAD_CHANNEL "plugins.flutter-pi.io/elm327/engineload"
-#define ELM327PLUGIN_COOLANTTEMP_CHANNEL "plugins.flutter-pi.io/elm327/coolanttemp"
-#define ELM327PLUGIN_SPEED_CHANNEL "plugins.flutter-pi.io/elm327/speed"
-#define ELM327PLUGIN_THROTTLE_CHANNEL "plugins.flutter-pi.io/elm327/throttle"
+#define ELM327PLUGIN_CHANNEL "plugins.flutter-arm.io/elm327"
+#define ELM327PLUGIN_RPM_CHANNEL "plugins.flutter-arm.io/elm327/rpm"
+#define ELM327PLUGIN_ENGINELOAD_CHANNEL "plugins.flutter-arm.io/elm327/engineload"
+#define ELM327PLUGIN_COOLANTTEMP_CHANNEL "plugins.flutter-arm.io/elm327/coolanttemp"
+#define ELM327PLUGIN_SPEED_CHANNEL "plugins.flutter-arm.io/elm327/speed"
+#define ELM327PLUGIN_THROTTLE_CHANNEL "plugins.flutter-arm.io/elm327/throttle"
 
 #define ELM327PLUGIN_DEVICE_PATH "/dev/rfcomm0"
 #define ELM327PLUGIN_BAUDRATE 9600

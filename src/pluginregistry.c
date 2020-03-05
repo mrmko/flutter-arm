@@ -40,7 +40,7 @@ struct {
 
 } pluginregistry;
 
-/// array of plugins that are statically included in flutter-pi.
+/// array of plugins that are statically included in flutter-arm.
 struct flutterpi_plugin hardcoded_plugins[] = {
 	{.name = "services",     .init = services_init, .deinit = services_deinit},
 	{.name = "raw_keyboard", .init = rawkb_init, .deinit = rawkb_deinit},

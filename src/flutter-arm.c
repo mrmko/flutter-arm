@@ -32,7 +32,7 @@
 
 #include <flutter_embedder.h>
 
-#include <flutter-pi.h>
+#include <flutter-arm.h>
 #include <console_keyboard.h>
 #include <platformchannel.h>
 #include <pluginregistry.h>
@@ -42,10 +42,10 @@
 
 
 char* usage ="\
-flutter-pi - run flutter apps on your Raspberry Pi.\n\
+flutter-arm - run flutter apps on your ARM board.\n\
 \n\
 USAGE:\n\
-  flutter-pi [options] <asset bundle path> [flutter engine options]\n\
+  flutter-arm [options] <asset bundle path> [flutter engine options]\n\
 \n\
 OPTIONS:\n\
   -i <glob pattern>   Appends all files matching this glob pattern\n\
@@ -64,13 +64,13 @@ OPTIONS:\n\
   -h                  Show this help and exit.\n\
 \n\
 EXAMPLES:\n\
-  flutter-pi -i \"/dev/input/event{0,1}\" -i \"/dev/input/event{2,3}\" /home/pi/helloworld_flutterassets\n\
-  flutter-pi -i \"/dev/input/mouse*\" /home/pi/helloworld_flutterassets\n\
-  flutter-pi /home/pi/helloworld_flutterassets\n\
+  flutter-arm -i \"/dev/input/event{0,1}\" -i \"/dev/input/event{2,3}\" /home/pi/helloworld_flutterassets\n\
+  flutter-arm -i \"/dev/input/mouse*\" /home/pi/helloworld_flutterassets\n\
+  flutter-arm /home/pi/helloworld_flutterassets\n\
 \n\
 SEE ALSO:\n\
   Author:  Hannes Winkler, a.k.a ardera\n\
-  Source:  https://github.com/ardera/flutter-pi\n\
+  Source:  https://github.com/ardera/flutter-arm\n\
   License: MIT\n\
 \n\
   For instructions on how to build an asset bundle, please see the linked\n\
@@ -818,16 +818,15 @@ bool init_display(void) {
 			}
 
 			// we found our DRM device.
-			printf("    flutter-pi chose \"%s\" as its DRM device.\n", device->nodes[DRM_NODE_PRIMARY]);
+			printf("    flutter-arm chose \"%s\" as its DRM device.\n", device->nodes[DRM_NODE_PRIMARY]);
 			drm.fd = fd;
 			drm.has_device = true;
 			snprintf(drm.device, sizeof(drm.device)-1, "%s", device->nodes[DRM_NODE_PRIMARY]);
 		}
 
 		if (!drm.has_device) {
-			fprintf(stderr, "flutter-pi couldn't find a usable DRM device.\n"
-							"Please make sure you've enabled the Fake-KMS driver in raspi-config.\n"
-							"If you're not using a Raspberry Pi, please make sure there's KMS support for your graphics chip.\n");
+			fprintf(stderr, "flutter-arm couldn't find a usable DRM device.\n"
+							"please make sure there's KMS support for your graphics chip.\n");
 			return false;
 		}
 	}
@@ -1147,11 +1146,11 @@ bool init_display(void) {
 
 	// it seems that after some Raspbian update, regular users are sometimes no longer allowed
 	//   to use the direct-rendering infrastructure; i.e. the open the devices inside /dev/dri/
-	//   as read-write. flutter-pi must be run as root then.
+	//   as read-write. flutter-arm must be run as root then.
 	// sometimes it works fine without root, sometimes it doesn't.
 	if (strncmp(egl.renderer, "llvmpipe", sizeof("llvmpipe")-1) == 0)
 		printf("WARNING: Detected llvmpipe (ie. software rendering) as the OpenGL ES renderer.\n"
-			   "         Check that flutter-pi has permission to use the 3D graphics hardware,\n"
+			   "         Check that flutter-arm has permission to use the 3D graphics hardware,\n"
 			   "         or try running it as root.\n"
 			   "         This warning will probably result in a \"failed to set mode\" error\n"
 			   "         later on in the initialization.\n");
@@ -1262,7 +1261,7 @@ bool init_application(void) {
 		}
 		fprintf(stderr,
 				"         VSync will be disabled.\n"
-				"         See https://github.com/ardera/flutter-pi/issues/38 for more info.\n");
+				"         See https://github.com/ardera/flutter-arm/issues/38 for more info.\n");
 	}
 
 	// spin up the engine
@@ -1459,7 +1458,7 @@ void  init_io(void) {
 	// configure the console
 	ok = console_make_raw();
 	if (ok != 0) {
-		printf("[flutter-pi] warning: could not make stdin raw\n");
+		printf("[flutter-arm] warning: could not make stdin raw\n");
 	}
 
 	console_flush_stdin();
@@ -1753,13 +1752,13 @@ void *io_loop(void *userdata) {
 bool  run_io_thread(void) {
 	int ok = pthread_create(&io_thread_id, NULL, &io_loop, NULL);
 	if (ok != 0) {
-		fprintf(stderr, "couldn't create flutter-pi io thread: [%s]", strerror(ok));
+		fprintf(stderr, "couldn't create flutter-arm io thread: [%s]", strerror(ok));
 		return false;
 	}
 
-	ok = pthread_setname_np(io_thread_id, "io.flutter-pi");
+	ok = pthread_setname_np(io_thread_id, "io.flutter-arm");
 	if (ok != 0) {
-		fprintf(stderr, "couldn't set name of flutter-pi io thread: [%s]", strerror(ok));
+		fprintf(stderr, "couldn't set name of flutter-arm io thread: [%s]", strerror(ok));
 		return false;
 	}
 

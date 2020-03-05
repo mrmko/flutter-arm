@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 #include <linux/spi/spidev.h>
 
-#include <flutter-pi.h>
+#include <flutter-arm.h>
 #include <platformchannel.h>
 #include <pluginregistry.h>
 #include <plugins/spidev.h>

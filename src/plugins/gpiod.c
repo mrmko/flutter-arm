@@ -224,7 +224,7 @@ static int gpiodp_respond_init_failed(FlutterPlatformMessageResponseHandle *hand
     return platch_respond_error_std(
         handle,
         "couldnotinit",
-        "flutter_gpiod failed to initialize libgpiod bindings. See flutter-pi log for details.",
+        "flutter_gpiod failed to initialize libgpiod bindings. See flutter-arm log for details.",
         NULL
     );
 }

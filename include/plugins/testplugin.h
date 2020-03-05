@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#define TESTPLUGIN_CHANNEL_JSON "flutter-pi/testjson"
-#define TESTPLUGIN_CHANNEL_STD "flutter-pi/teststd"
-#define TESTPLUGIN_CHANNEL_PING "flutter-pi/ping"
+#define TESTPLUGIN_CHANNEL_JSON "flutter-arm/testjson"
+#define TESTPLUGIN_CHANNEL_STD "flutter-arm/teststd"
+#define TESTPLUGIN_CHANNEL_PING "flutter-arm/ping"
 
 extern int testp_init(void);
 extern int testp_deinit(void);

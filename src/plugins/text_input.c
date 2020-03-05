@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <flutter-pi.h>
+#include <flutter-arm.h>
 #include <pluginregistry.h>
 #include <plugins/text_input.h>
 
@@ -157,7 +157,7 @@ int textin_on_receive(char *channel, struct platch_obj *object, FlutterPlatformM
 
         if (autocorrect && (!text_input.warned_about_autocorrect)) {
             printf("[text_input] warning: flutter requested native autocorrect, which",
-                   "is not supported by flutter-pi.\n");
+                   "is not supported by flutter-arm.\n");
             text_input.warned_about_autocorrect = true;
         }
 

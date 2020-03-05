@@ -23,9 +23,9 @@ typedef int (*init_deinit_cb)(void);
 ///   passed to plugin_registry_set_receiver.
 typedef int (*platch_obj_recv_callback)(char *channel, struct platch_obj *object, FlutterPlatformMessageResponseHandle *responsehandle);
 
-/// details of a plugin for flutter-pi.
+/// details of a plugin for flutter-arm.
 /// All plugins are initialized (i.e. get their "init" callbacks called)
-///   when plugin_registry_init() is called by flutter-pi.
+///   when plugin_registry_init() is called by flutter-arm.
 ///   In the init callback, you probably want to do stuff like
 ///   register callbacks for some method channels your plugin uses,
 ///   or dynamically allocate memory for your plugin if you need to.
