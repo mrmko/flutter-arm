@@ -42,7 +42,7 @@
 
 
 char* usage ="\
-flutter-arm - run flutter apps on your ARM board.\n\
+flutter-arm - run flutter apps on your Raspberry Pi.\n\
 \n\
 USAGE:\n\
   flutter-arm [options] <asset bundle path> [flutter engine options]\n\
@@ -105,7 +105,7 @@ enum device_orientation orientation;
 /// The angle between the initial device orientation and the current device orientation in degrees.
 /// (applied as a rotation to the flutter window in transformation_callback, and also
 /// is used to determine if width/height should be swapped when sending a WindowMetrics event to flutter)
-int rotation = 0;
+int rotation = 90;
 
 struct {
 	char device[PATH_MAX];
@@ -142,7 +142,7 @@ struct {
 } egl = {0};
 
 struct {
-	char asset_bundle_path[256];
+	char asset_bundle_path[240];
 	char kernel_blob_path[256];
 	char executable_path[256];
 	char icu_data_path[256];
@@ -233,24 +233,22 @@ struct drm_fb *drm_fb_get_from_bo(struct gbm_bo *bo) {
 	height = gbm_bo_get_height(bo);
 	format = gbm_bo_get_format(bo);
 
-	if (gbm_bo_get_modifier && gbm_bo_get_plane_count && gbm_bo_get_stride_for_plane && gbm_bo_get_offset) {
-		uint64_t modifiers[4] = {0};
-		modifiers[0] = gbm_bo_get_modifier(bo);
-		const int num_planes = gbm_bo_get_plane_count(bo);
+	uint64_t modifiers[4] = {0};
+	modifiers[0] = gbm_bo_get_modifier(bo);
+	const int num_planes = gbm_bo_get_plane_count(bo);
 
-		for (int i = 0; i < num_planes; i++) {
-			strides[i] = gbm_bo_get_stride_for_plane(bo, i);
-			handles[i] = gbm_bo_get_handle(bo).u32;
-			offsets[i] = gbm_bo_get_offset(bo, i);
-			modifiers[i] = modifiers[0];
-		}
-
-		if (modifiers[0]) {
-			flags = DRM_MODE_FB_MODIFIERS;
-		}
-
-		ok = drmModeAddFB2WithModifiers(drm.fd, width, height, format, handles, strides, offsets, modifiers, &fb->fb_id, flags);
+	for (int i = 0; i < num_planes; i++) {
+		strides[i] = gbm_bo_get_stride_for_plane(bo, i);
+		handles[i] = gbm_bo_get_handle(bo).u32;
+		offsets[i] = gbm_bo_get_offset(bo, i);
+		modifiers[i] = modifiers[0];
 	}
+
+	if (modifiers[0]) {
+		flags = DRM_MODE_FB_MODIFIERS;
+	}
+
+	ok = drmModeAddFB2WithModifiers(drm.fd, width, height, format, handles, strides, offsets, modifiers, &fb->fb_id, flags);
 
 	if (ok) {
 		if (flags)
@@ -336,13 +334,13 @@ const GLubyte *hacked_glGetString(GLenum name) {
 	if (extensions == NULL) {
 		GLubyte *orig_extensions = (GLubyte *) glGetString(GL_EXTENSIONS);
 		
-		extensions = malloc(strlen(orig_extensions) + 1);
+		extensions = malloc(strlen((const char*)orig_extensions) + 1);
 		if (!extensions) {
 			fprintf(stderr, "Could not allocate memory for modified GL_EXTENSIONS string\n");
 			return NULL;
 		}
 
-		strcpy(extensions, orig_extensions);
+		strcpy((char*)extensions, (const char*)orig_extensions);
 
 		/*
 			* working (apparently)
@@ -371,40 +369,40 @@ const GLubyte *hacked_glGetString(GLenum name) {
 		/*
 		* should be working, but isn't
 		*/
-		cut_word_from_string(extensions, "GL_EXT_map_buffer_range");
+		cut_word_from_string((char*)extensions, "GL_EXT_map_buffer_range");
 
 		/*
 		* definitely broken
 		*/
-		cut_word_from_string(extensions, "GL_OES_element_index_uint");
-		cut_word_from_string(extensions, "GL_OES_fbo_render_mipmap");
-		cut_word_from_string(extensions, "GL_OES_mapbuffer");
-		cut_word_from_string(extensions, "GL_OES_rgb8_rgba8");
-		cut_word_from_string(extensions, "GL_OES_stencil8");
-		cut_word_from_string(extensions, "GL_OES_texture_3D");
-		cut_word_from_string(extensions, "GL_OES_packed_depth_stencil");
-		cut_word_from_string(extensions, "GL_OES_get_program_binary");
-		cut_word_from_string(extensions, "GL_APPLE_texture_max_level");
-		cut_word_from_string(extensions, "GL_EXT_discard_framebuffer");
-		cut_word_from_string(extensions, "GL_EXT_read_format_bgra");
-		cut_word_from_string(extensions, "GL_EXT_frag_depth");
-		cut_word_from_string(extensions, "GL_NV_fbo_color_attachments");
-		cut_word_from_string(extensions, "GL_OES_EGL_sync");
-		cut_word_from_string(extensions, "GL_OES_vertex_array_object");
-		cut_word_from_string(extensions, "GL_EXT_unpack_subimage");
-		cut_word_from_string(extensions, "GL_NV_draw_buffers");
-		cut_word_from_string(extensions, "GL_NV_read_buffer");
-		cut_word_from_string(extensions, "GL_NV_read_depth");
-		cut_word_from_string(extensions, "GL_NV_read_depth_stencil");
-		cut_word_from_string(extensions, "GL_NV_read_stencil");
-		cut_word_from_string(extensions, "GL_EXT_draw_buffers");
-		cut_word_from_string(extensions, "GL_KHR_debug");
-		cut_word_from_string(extensions, "GL_OES_required_internalformat");
-		cut_word_from_string(extensions, "GL_OES_surfaceless_context");
-		cut_word_from_string(extensions, "GL_EXT_separate_shader_objects");
-		cut_word_from_string(extensions, "GL_KHR_context_flush_control");
-		cut_word_from_string(extensions, "GL_KHR_no_error");
-		cut_word_from_string(extensions, "GL_KHR_parallel_shader_compile");
+		cut_word_from_string((char*)extensions, "GL_OES_element_index_uint");
+		cut_word_from_string((char*)extensions, "GL_OES_fbo_render_mipmap");
+		cut_word_from_string((char*)extensions, "GL_OES_mapbuffer");
+		cut_word_from_string((char*)extensions, "GL_OES_rgb8_rgba8");
+		cut_word_from_string((char*)extensions, "GL_OES_stencil8");
+		cut_word_from_string((char*)extensions, "GL_OES_texture_3D");
+		cut_word_from_string((char*)extensions, "GL_OES_packed_depth_stencil");
+		cut_word_from_string((char*)extensions, "GL_OES_get_program_binary");
+		cut_word_from_string((char*)extensions, "GL_APPLE_texture_max_level");
+		cut_word_from_string((char*)extensions, "GL_EXT_discard_framebuffer");
+		cut_word_from_string((char*)extensions, "GL_EXT_read_format_bgra");
+		cut_word_from_string((char*)extensions, "GL_EXT_frag_depth");
+		cut_word_from_string((char*)extensions, "GL_NV_fbo_color_attachments");
+		cut_word_from_string((char*)extensions, "GL_OES_EGL_sync");
+		cut_word_from_string((char*)extensions, "GL_OES_vertex_array_object");
+		cut_word_from_string((char*)extensions, "GL_EXT_unpack_subimage");
+		cut_word_from_string((char*)extensions, "GL_NV_draw_buffers");
+		cut_word_from_string((char*)extensions, "GL_NV_read_buffer");
+		cut_word_from_string((char*)extensions, "GL_NV_read_depth");
+		cut_word_from_string((char*)extensions, "GL_NV_read_depth_stencil");
+		cut_word_from_string((char*)extensions, "GL_NV_read_stencil");
+		cut_word_from_string((char*)extensions, "GL_EXT_draw_buffers");
+		cut_word_from_string((char*)extensions, "GL_KHR_debug");
+		cut_word_from_string((char*)extensions, "GL_OES_required_internalformat");
+		cut_word_from_string((char*)extensions, "GL_OES_surfaceless_context");
+		cut_word_from_string((char*)extensions, "GL_EXT_separate_shader_objects");
+		cut_word_from_string((char*)extensions, "GL_KHR_context_flush_control");
+		cut_word_from_string((char*)extensions, "GL_KHR_no_error");
+		cut_word_from_string((char*)extensions, "GL_KHR_parallel_shader_compile");
 	}
 
 	return extensions;
@@ -826,7 +824,8 @@ bool init_display(void) {
 
 		if (!drm.has_device) {
 			fprintf(stderr, "flutter-arm couldn't find a usable DRM device.\n"
-							"please make sure there's KMS support for your graphics chip.\n");
+							"Please make sure you've enabled the Fake-KMS driver in raspi-config.\n"
+							"If you're not using a Raspberry Pi, please make sure there's KMS support for your graphics chip.\n");
 			return false;
 		}
 	}
@@ -925,7 +924,7 @@ bool init_display(void) {
 			height = current_mode->vdisplay;
 			refresh_rate = current_mode->vrefresh;
 			area = current_area;
-			orientation = width >= height ? kLandscapeLeft : kPortraitUp;
+			orientation = width >= height ? kLandscapeLeft : kLandscapeRight;
 
 			// if the preferred DRM mode is bogus, we're screwed.
 			if (current_mode->type & DRM_MODE_TYPE_PREFERRED) {
@@ -1278,7 +1277,7 @@ bool init_application(void) {
 	// update window size
 	ok = FlutterEngineSendWindowMetricsEvent(
 		engine,
-		&(FlutterWindowMetricsEvent) {.struct_size = sizeof(FlutterWindowMetricsEvent), .width=width, .height=height, .pixel_ratio = pixel_ratio}
+		&(FlutterWindowMetricsEvent) {.struct_size = sizeof(FlutterWindowMetricsEvent), .width=height, .height=width, .pixel_ratio = pixel_ratio}
 	) == kSuccess;
 
 	if (!ok) {
@@ -1467,6 +1466,10 @@ void  init_io(void) {
 	ok = kSuccess == FlutterEngineSendPointerEvent(engine, flutterevents, i_flutterevent);
 	if (!ok) fprintf(stderr, "error while sending initial mousepointer / multitouch slot information to flutter\n");
 }
+
+bool gB_firstTouch = false;
+int gI_touchID = -1;
+
 void  on_evdev_input(fd_set fds, size_t n_ready_fds) {
 	struct input_event    linuxevents[64];
 	size_t                n_linuxevents;
@@ -1475,6 +1478,7 @@ void  on_evdev_input(fd_set fds, size_t n_ready_fds) {
 	FlutterPointerEvent   flutterevents[64] = {0};
 	size_t                i_flutterevent = 0;
 	int    ok, i, j;
+	
 
 	while (n_ready_fds > 0) {
 		// find out which device got new data
@@ -1496,7 +1500,7 @@ void  on_evdev_input(fd_set fds, size_t n_ready_fds) {
 		}
 		n_ready_fds--;
 		n_linuxevents = ok / sizeof(struct input_event);
-		
+
 		// now go through all linux events and update the state and flutterevents array accordingly.
 		for (int i=0; i < n_linuxevents; i++) {
 			struct input_event *e = &linuxevents[i];
@@ -1516,12 +1520,11 @@ void  on_evdev_input(fd_set fds, size_t n_ready_fds) {
 					mousepointer.phase = device->active_buttons ? kMove : kHover;
 
 			} else if (e->type == EV_ABS) {
-
 				if (e->code == ABS_MT_SLOT) {
 
 					// select a new active mtslot.
-					device->i_active_mtslot = e->value;
-					active_mtslot = &device->mtslots[device->i_active_mtslot];
+					//device->i_active_mtslot = e->value;
+					//active_mtslot = &device->mtslots[device->i_active_mtslot];
 
 				} else if (e->code == ABS_MT_POSITION_X || e->code == ABS_X || e->code == ABS_MT_POSITION_Y || e->code == ABS_Y) {
 					double relx = 0, rely = 0;
@@ -1554,13 +1557,23 @@ void  on_evdev_input(fd_set fds, size_t n_ready_fds) {
 					// id -1 means no id, or no touch. one tracking id is equivalent one continuous touch contact.
 					bool before = device->active_buttons && true;
 
+					
+
 					if (active_mtslot->id == -1) {
-						active_mtslot->id = e->value;
-						// only set active_buttons if a touch equals a kMove (not kHover, as it is for multitouch touchpads)
-						device->active_buttons |= (device->is_direct ? FLUTTER_BUTTON_FROM_EVENT_CODE(BTN_TOUCH) : 0);
+						if(!gB_firstTouch){
+							active_mtslot->id = e->value;
+							// only set active_buttons if a touch equals a kMove (not kHover, as it is for multitouch touchpads)
+							device->active_buttons |= (device->is_direct ? FLUTTER_BUTTON_FROM_EVENT_CODE(BTN_TOUCH) : 0);
+							gB_firstTouch = true;
+							gI_touchID = e->value;
+						}
 					} else {
-						active_mtslot->id = -1;
-						device->active_buttons &= ~(device->is_direct ? FLUTTER_BUTTON_FROM_EVENT_CODE(BTN_TOUCH) : 0);
+						if(gI_touchID == active_mtslot->id){
+							active_mtslot->id = -1;
+							device->active_buttons &= ~(device->is_direct ? FLUTTER_BUTTON_FROM_EVENT_CODE(BTN_TOUCH) : 0);
+							gB_firstTouch = false;
+							gI_touchID = -1;
+						}
 					}
 
 					if (!before != !device->active_buttons)
